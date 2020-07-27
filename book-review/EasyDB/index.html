@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>가장 쉬운 데이터베이스 설계 | JS Blog</title>
+    <meta name="generator" content="VuePress 1.5.2">
+    
+    <meta name="description" content="JeongShin 의 코딩 블로그 👨🏻‍💻">
+    <meta name="google-site-verification" content="66JKoxw93huqhAdXO3P0K86NJZne5H-M3302YHcwoWI">
+    <link rel="preload" href="/JeongShin_Blog/assets/css/0.styles.bb30e124.css" as="style"><link rel="preload" href="/JeongShin_Blog/assets/js/app.329efa38.js" as="script"><link rel="preload" href="/JeongShin_Blog/assets/js/2.7c70f4af.js" as="script"><link rel="preload" href="/JeongShin_Blog/assets/js/20.5424fffe.js" as="script"><link rel="prefetch" href="/JeongShin_Blog/assets/js/10.9a0cb9d2.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/11.061c37cc.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/12.0c7ac8ad.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/13.ef8017c4.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/14.01497cfb.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/15.7b3a67f4.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/16.a1210dec.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/17.48920026.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/18.f4ba85e0.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/19.f1ebb4e5.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/21.eebb1002.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/22.110a5813.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/23.5450c175.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/24.37d3bdae.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/25.b26b1c09.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/26.21744972.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/27.3d7190e5.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/28.ed313d2a.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/29.ba906f27.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/3.af6601bf.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/30.a198ffbc.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/4.699b2153.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/5.c314334a.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/6.c99465ab.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/7.f864a3cd.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/8.37f67fd0.js"><link rel="prefetch" href="/JeongShin_Blog/assets/js/9.6a2e0b28.js">
+    <link rel="stylesheet" href="/JeongShin_Blog/assets/css/0.styles.bb30e124.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/JeongShin_Blog/" class="home-link router-link-active"><img src="/JeongShin_Blog/images/logo.jpg" alt="JS Blog" class="logo"> <span class="site-name can-hide">JS Blog</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/JeongShin_Blog/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><a href="/JeongShin_Blog/home/" class="nav-link">
+  
+</a></div><div class="nav-item"><a href="/JeongShin_Blog/aboutme/" class="nav-link">
+  About me
+</a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/JeongShin_Blog/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><a href="/JeongShin_Blog/home/" class="nav-link">
+  
+</a></div><div class="nav-item"><a href="/JeongShin_Blog/aboutme/" class="nav-link">
+  About me
+</a></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/JeongShin_Blog/guide/" class="sidebar-link">Guide</a></li><li><section class="sidebar-group collapsable depth-0"><a href="/JeongShin_Blog/TIL/" class="sidebar-heading clickable"><span>Today I Learned</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><a href="/JeongShin_Blog/algorithms/" class="sidebar-heading clickable"><span>Algorithms</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><a href="/JeongShin_Blog/book-review/" class="sidebar-heading clickable router-link-active open"><span>Book-Review</span> <span class="arrow down"></span></a> <ul class="sidebar-links sidebar-group-items"><li><a href="/JeongShin_Blog/book-review/OOP_Principle/" class="sidebar-link">스프링 입문을 위한 자바 향의 원리와 이해</a></li><li><a href="/JeongShin_Blog/book-review/You_Don't_Know_JS/" class="sidebar-link">You Don't Know JS</a></li><li><a href="/JeongShin_Blog/book-review/CoreJS/" class="sidebar-link">코어 자바스크립트</a></li><li><a href="/JeongShin_Blog/book-review/Inside_JS/" class="sidebar-link">인사이드 자바스크립트</a></li><li><a href="/JeongShin_Blog/book-review/EasyDB/" aria-current="page" class="active sidebar-link">가장 쉬운 데이터베이스 설계</a></li><li><a href="/JeongShin_Blog/book-review/Computing_System/" class="sidebar-link">밑바닥부터 만드는 컴퓨팅 시스템</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><a href="/JeongShin_Blog/daily/" class="sidebar-heading clickable"><span>Daily</span> <span class="arrow right"></span></a> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="가장-쉬운-데이터베이스-설계"><a href="#가장-쉬운-데이터베이스-설계" class="header-anchor">#</a> 가장 쉬운 데이터베이스 설계</h1></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/JeongShin_Blog/book-review/Inside_JS/" class="prev">
+        인사이드 자바스크립트
+      </a></span> <span class="next"><a href="/JeongShin_Blog/book-review/Computing_System/">
+        밑바닥부터 만드는 컴퓨팅 시스템
+      </a>
+      →
+    </span></p></div>  <div><div id="comment"></div></div></main> <footer class="siteFooter">
+  COPYRIGHT©2020 ALL RIGHT JeongShin
+  <br>sjeong1127@gmail.com . +82-10-2169-2142 .
+  <br> <a href="https://www.instagram.com/jeongshin96/" target="_blank">Instagram</a> <a href="https://github.com/JeongShin" target="_blank">GitHub</a></footer></div><div class="global-ui"></div></div>
+    <script src="/JeongShin_Blog/assets/js/app.329efa38.js" defer></script><script src="/JeongShin_Blog/assets/js/2.7c70f4af.js" defer></script><script src="/JeongShin_Blog/assets/js/20.5424fffe.js" defer></script>
+  </body>
+</html>
