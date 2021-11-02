@@ -1,0 +1,21 @@
+{
+  "name": "TIL",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vuepress dev",
+    "docs:build": "vuepress build",
+    "docs:eject": "vuepress eject"
+  },
+  "devDependencies": {
+    "@vuepress/plugin-search": "^1.5.2",
+    "vuepress": "^1.5.2",
+    "vuepress-plugin-container": "^2.1.4"
+  },
+  "dependencies": {
+    "@vuepress/plugin-google-analytics": "^1.5.2",
+    "markdown-it-plantuml": "^1.4.1",
+    "vuepress-auto-sidebar": "^1.1.0"
+  }
+}

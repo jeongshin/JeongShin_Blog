@@ -1,0 +1,743 @@
+# 프로그래머스 Level03
+
+## N-Queen 👉 Branch & Bound
+
+[문제링크](https://programmers.co.kr/learn/courses/30/lessons/12952) [나의풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.N_Queen/JeongShin.js)
+
+### 1. 문제정의
+
+가로, 세로의 길이가 N 의 크기의 체스판에서 N 개의 퀸을 서로 공격할 수 없는 위치에 배치하는 경우의 수를 구하는 문제
+
+### 2. 풀이 & 코드
+
+이 문제는 tree 형태로 현재 체스판의 상황을 나타내는 노드를 생성하여 `분기와 한정` 을 사용하는 다이나믹 프로그래밍의 대표적인 문제중 하나 이다.
+
+**FIFO 방식으로 branch** 를 생성해가며 퀸이 서로 공격할 수 있는 위치에 있을 시 해당 노드를 **죽은 노드**로 바꾸는 **bound 함수**를 구현하여 풀이하였다.
+
+1.  변수에 대한 정의
+
+    col 👉 현재 Queen 의 Column 위치를 저장 하는 배열
+
+        예를들어 col = [1, 2] 일 경우
+        | Q |   |
+        |   | Q |
+        Queen은 위과 같이 위치하게 됩니다.
+
+    level 👉 현재 고려하고 있는 Queen의 개수
+
+2.  풀이
+
+    큐에는 다음과 같은 자료구조 형태로 level 과 col 에 대한 정보를 저장한다.
+
+    Q = | 2 | 1 | 2 | 👉 레벨 : 2 col : [1, 2]
+
+    ```JS
+
+    ```
+
+`TODO`
+
+### 3. 어려웠던 점
+
+`TODO`
+
+## 섬 연결하기 👉 MST
+
+[문제 링크](https://programmers.co.kr/learn/courses/30/lessons/42861) [나의 풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.%EC%84%AC_%EC%97%B0%EA%B2%B0%ED%95%98%EA%B8%B0/JeongShin.js)
+
+### 1. 문제정의
+
+Kruskal's 알고리즘 을 이용하여 Minimum Spanning Tree 를 찾는 문제
+
+가장 핵심은 `Union-Find` 기법인데 Spanning Tree 를 구성하면서 node 를 하나씩 그리디 기법으로 추가하면서 Cycle 이 생기는 노드를 제외해 나가는게 핵심 !
+
+### 2. 풀이 & 코드
+
+최소 가중치 순서대로 sorting 한 후 하나의 edge 씩 순서대로 from, to 노드를 사이클이 생기는지 확인 해가며 추가한다. 이때 union find 가 사용되는데,
+
+1. find 👉 부모를 찾는다
+2. union 👉 같은 부모는 사이클을 의미 skip, 다른 부모는 사이클이 없음을 의미 union
+
+set을 이용하여 각자 부모에 해당하는 인덱스를 넣어준다. 예를들어 아래의 경우
+
+```
+set = {0 : 1, 1 : 2, 2 : -2 }
+```
+
+0 번 노드의 부모는 1, 1 번 노드의 부모는 2
+
+2 번 노드 👉 음수는 루트 노드를 의미하고 2는 자식이 2개임을 의미
+
+```JS
+const find = child => {
+    let parent = child;
+    // 음수가 나올때 까지 (최상위 부모까지) 따라 올라간다
+    while (set[parent] >= 0) {
+        parent = set[parent]
+    }
+    return parent;
+};
+
+const union = (p1, p2) => {
+    // parent 가 동일할 경우 skip
+    if (p1 === p2)
+        return;
+
+    // parent가 다를 경우 하나의 부모로 통일
+    const [parent, child] = [set[p1] < set[p2] ? p1 : p2, set[p1] < set[p2] ? p2 : p1];
+    set[parent] = set[p1] + set[p2];
+    set[child] = parent;
+};
+```
+
+### 3. 어려웠던 점
+
+부모가 더 많은 자식이 있는 쪽으로 합쳐줘야지 원하는 결과가 나왔음.
+
+아닐 경우에 몇개의 테스트를 통과하지 못했는데 정확한 이유는 아직 모르곘음.
+
+## 단어 변환 👉 DFS
+
+[문제 링크](https://programmers.co.kr/learn/courses/30/lessons/43163) [나의 풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.%EB%8B%A8%EC%96%B4_%EB%B3%80%ED%99%98/JeongShin.js)
+
+### 1. 문제정의
+
+`dfs` 탐색으로 단어를 하나씩 다른 노드를 찾아 가면서 몇개의 단어를 거쳤는지 최소 값을 찾는 문제
+
+핵심은 현재 단어와 몇개를 거쳤는지 word, count 값을 가지고 dfs 를 구현하는 것
+
+### 2. 풀이 & 코드
+
+```JS
+for (let i = 0; i < len; i++) {
+    if (match(word, i) === 1 && visited[words[i]] === undefined)
+            dfs({word: words[i], count: count + 1});
+    }
+};
+    dfs({word: begin, count: 0});
+}
+```
+
+### 3. 어려웠던 점
+
+한 글자만 다른 단어를 찾는걸 고민 많이 했는데 그냥 split 해서 하나씩 검사하는 방법으로 구현하였는데 일단 성능 테스트는 통과 하였다. 다른 방법이 있는지는 모르겠다. 😅
+
+## 먼 노드 👉 BFS
+
+[문제 링크](https://programmers.co.kr/learn/courses/30/lessons/49189) [나의 풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.%EA%B0%80%EC%9E%A5%EB%A8%BC%EB%85%B8%EB%93%9C/JeongShin.js)
+
+### 1. 문제정의
+
+아래와 같이 edge 가 주어지면 1번 노드부터 가장 먼 최단거리 vertex 의 개수를 리턴 하는 문제
+
+```JS
+const  edge = [[3, 6], [4, 3], [3, 2], [1, 3], [1, 2], [2, 4], [5, 2]];
+
+1 - 2 - 5
+| / |
+3 - 4
+|
+6
+```
+
+5, 4, 6 노드가 가장 먼 노드들로 결과로 3을 리턴 해야함.
+
+`BFS` 탐색으로 모든 노드별로 거리를 구하여 최대 거리에 해당되는 노드의 개수를 구한다.
+
+### 2. 풀이 & 코드
+
+```JS
+const bfs = (start) => {
+        const Q = new queue();
+        Q.push({vertex: start, distance: 0});
+
+        const visited = {};
+        visited[start] = 0;
+
+        while (!Q.isEmpty()) {
+            const {vertex, distance} = Q.pop();
+            graph[vertex].forEach((neighbor) => {
+                if (visited[neighbor] === undefined) {
+                    visited[neighbor] = distance + 1; // 👉 여기가 if 문 안으로 들어와야 정상 작동 !
+                    Q.push({vertex: neighbor, distance: distance + 1});
+                }
+            });
+        }
+        return Object.values(visited);
+    };
+}
+```
+
+풀이 도중 원하는 결과가 나오지 않았는데 그 이유는 큐에 푸쉬하는 시점에 visited 를 체크 해줘야 neighbor가 중복이 안 생김.
+다음부터 이 점 유의하여 풀이 해야될듯.
+
+### 3. 어려웠던 점
+
+이 문제의 경우 그래프에 가중치가 없기 때문에 단순히 bfs 로 지나온 edge 의 개수를 큐에 삽입하면 되지만
+만약 가중치가 있는 그래프의 경우 단순히 bfs 로 풀 수 없을듯.
+
+## 예산 👉 Binary Search
+
+[문제 링크](https://programmers.co.kr/learn/courses/30/lessons/43237) [나의 풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.%EC%98%88%EC%82%B0/JeongShin.js)
+
+### 1. 문제정의
+
+아래와 같이 budgets와 예산 M 이 있을때
+
+```JS
+const budgets = [120, 110, 140, 150]
+const M = 485
+```
+
+예산 내 최대 상한가액을 구해야함. 위의 경우 127이 최대 상한액이 484의 예산을 필요로 하는 리턴값이 됨.
+
+### 2. 풀이 & 코드
+
+budgets 을 sorting 한 뒤 예산 중 최대, 최소 값을 구해서
+
+조건 (M을 넘지 않는) 최대 값을 binary search 함.
+
+```JS
+const dividable = (arr, bud) =>
+    arr.reduce((acc, curr) => acc + Math.min(curr, bud), 0) <= M;
+```
+
+위의 함수로 상한액이 예산을 넘지 검사하도록 하고
+
+```JS
+while (low <= high) {
+    const mid = ~~((low + high) / 2);
+    if (dividable(sorted, mid))
+        low = mid + 1;
+    else
+        high = mid - 1;
+    }
+```
+
+while 문을 통하여 binary search 를 구현해주었음.
+
+`시간복잡도` : N log N (sorting) + log N (bin search) = O (N log N)
+
+### 3. 어려웠던 점
+
+1. 프로그래머스에서 문제 시작전에 이분 탐색의 힌트를 주었기 때문에 쉽게 풀이하였지만 실제 코딩 테스트에서 이 문제가 그냥 주어졌을때 이분탐색을 활용 할 수 있을지에 대한 의문이 있음.
+
+👉 범위 내에서 특정 값을 찾아야한다면 이분탐색을 고려해보는게 좋을듯 !
+
+2. 한 개의 테스트를 계속 통과하지 못하였는데 바로 아래의 경우임.
+
+```JS
+if (M < low * len)
+        return ~~(M/len);
+```
+
+이분탐색의 경우 문제의 해인 `high` 변수가 110 ~ 150 내에서 있을때 제대로 된 해를 구할 수 있음.
+
+👉 만약 최대 상한액이 110보다 작아지는 경우 해가 binary search 하려는 범위내에 없기 때문에 예외처리를 해줘야함.
+
+## 여행경로 👉 DFS, 경우의 수
+
+[문제 링크](https://programmers.co.kr/learn/courses/30/lessons/43164) [나의 풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.%EC%97%AC%ED%96%89%EA%B2%BD%EB%A1%9C/JeongShin.js)
+
+### 1. 문제정의
+
+아래와 같이 티켓의 정보가 주어졌을때,
+
+```JS
+const tickets = [["ICN", "JFK"], ["HND", "IAD"], ["JFK", "HND"]];
+```
+
+티켓에 대한 정보를 기준으로 다음과 같은 조건을 만족하는 여행경로에 대한 탐색이 이루어 져야함
+
+1. 만일 가능한 경로가 2개 이상일 경우 알파벳 순서가 앞서는 경로를 return 합니다.
+2. 모든 도시를 방문할 수 없는 경우는 주어지지 않습니다.
+3. 주어진 항공권은 모두 사용해야 합니다.
+
+이 문제의 핵심은 주어진 항공권 모두 사용과 문제에는 명시되어 있지 않지만 테스트 케이스에서 중복된 두개의 티켓이 있는 경우가 있기 때문에 풀이가 쉽지 않았다.
+
+### 2. 풀이 & 코드
+
+조건을 하나씩 따져보면
+
+1. 만일 가능한 경로가 2개 이상일 경우 알파벳 순서가 앞서는 경로를 return 합니다 👉 티켓을 알파벳 순서로 정렬
+
+```JS
+tickets.sort();
+```
+
+2. 모든 도시를 방문할 수 없는 경우는 주어지지 않습니다. (전제 조건)
+
+3. 주어진 항공권은 모두 사용해야 합니다 👉 모든 경우에 대한 탐색
+
+아래와 같은 여행경로가 있다고 따져볼때
+
+```JS
+const tickets = [["ICN", "COO"], ["ICN", "BOO"], ["COO", "ICN"], ["BOO", "DOO"]]
+```
+
+1번 조건만 고려하게 되면 여행경로는
+
+    ICN 👉 BOO 👉 DOO
+
+가 됩니다. 2번, 3번 조건을 모두 고려하게 된다면 여행경로는
+
+    ICN 👉 COO 👉 ICN 👉 BOO 👉 DOO
+
+가 됩니다. 이 여행경로가 1,2,3 번 조건을 모두 만족하는 **유일한** 여행경로가 됩니다.
+
+`모든 경우의 수`
+
+모든 경우의 수에 대한 탐색을 구현해본적이 없어 가장 먼저 기본적인 모든 경우의 수를 공부하였습니다.
+
+```JS
+function solution (arr) {
+    const len = arr.length
+    const f = stack => {
+        if (stack.length === len) {
+            console.log(stack)
+            return
+        }
+        arr.forEach(
+            v => {
+                if (stack.indexOf(v) === -1)
+                    f([...stack, v])
+            }
+        )
+    }
+    f([])
+}
+```
+
+위의 코드에서 핵심은 f 함수를 재귀적으로 호출하여 배열 내부에 없는 요소를 찾아 하나씩 더해준다.
+
+    arr = [1, 2, 3] 이라 가정하면 arr.forEach() 에서
+    v = 1 일때
+    [1] 👉 [1 , 2] 👉 [1, 2, 3]
+    v = 2 일때
+    [2] 👉 (배열에 없는 1을 찾음) [2, 1] 👉 [2, 1, 3]
+    ...
+
+와 같이 요소 하나씩 기준으로 없는 요소를 찾아서 하나씩 더해주며 모든 경우의 수에 대한 탐색을 하여 stack.length 가 목표 길이 len을 만족하면 종료한다.
+
+이를 이용하여 문제에 대한 접근 방법을 pseudo-code 로 작성하면 다음과 같다.
+
+    sort tickets
+    dfs (route : [])
+        if route length equals len
+            quit searching
+
+        get visited object from route
+
+        get end : last element from route
+
+        forEach v of tickets:
+            if (ticket from equals end) and (ticket visitable)
+                dfs(new route)
+
+위와 같이 진행하면 forEach 문 에서 조건을 만족하는 여행지를 찾으면 바로 그 요소를 더해주어 dfs를 재귀 호출한다. 이때 tickets가 정렬되어 있으면 자동으로 알파벳 순으로 방문을 하게 된다.
+
+### 3. 어려웠던 점
+
+이번 문제는 조건이 상당히 까다로웠다. 2, 3번 조건을 모두 만족하는 경우 중에서 1번 조건을 또 만족해야하기 때문에 접근이 어려웠다.
+
+일반적인 visited 정보만 체크하는 일반적인 dfs 문제와는 다른 문제였다. 일반적인 dfs 알고리즘의 경우 visited 여부만 체크해가면서 target 노드를 향해 깊이 우선 순위 탐색을 진행한다. 하지만 이번 문제의 경우 중복된 티켓 때문에 개수를 확인 해주면서 1,2,3 번 조건을 만족하는 경로를 탐색해야 한다.
+
+    위의 예제 티켓 [["ICN", "COO"], ["ICN", "BOO"], ["COO", "ICN"], ["BOO", "DOO"]] 에서
+    ICN 👉 BOO 👉 DOO 는 기본적인 dfs 알고리즘으로 얻을 수 있는 해답이지만 조건을 만족시키지 않는다
+
+    따라서 ICN 👉 BOO 로 선택하는 과정에서 ICN 👉 COO 로 가는 경로가 조건을 만족하는도
+    따져봐야 하는 것이다. 이 부분이 가장 까다롭지만 핵심이 된다 ⭐️
+
+    ICN 👉 COO 👉 ICN 👉 BOO 👉 DOO 는 변형된 dfs 알고리즘으로 문제의 조건을 만족시킨다
+    즉, 조건을 만족하는 dfs 알고리즘 경로를 찾기 위해서 모든 경우의 수를 따져봐야 하는 것 이다.
+
+이 문제는 꼭 복습을 해보도록 하자.
+
+## 줄 서는 방법 👉 DP
+
+[문제 링크](https://programmers.co.kr/learn/courses/30/lessons/12936) [나의 풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.%EC%A4%84_%EC%84%9C%EB%8A%94_%EB%B0%A9%EB%B2%95/JeongShin.js)
+
+### 1. 문제정의
+
+다음과 같이 n, k 가 주어지면 1 ~ n 의 숫자를 오름차순 순서대로 나열하는 경우의 수에서 k 번째 경우를 구하는 문제
+
+    n = 3 , k = 5 라 가정하면 경우의 수는
+    [1, 2, 3]
+    [1, 3 ,2]
+    [2, 1, 3]
+    [2, 3, 1]
+    [3, 1, 2]
+    [3, 2, 1]
+    3! 개의 경우의 수가 생기는데 이중 5번째 즉, [3, 1, 2]를 구해내야한다.
+
+### 2. 풀이 & 코드
+
+1. Recursive 경우의 수 알고리즘
+
+처음 접근 방법은 모든 경우의 수를 구하는 recursive 알고리즘을 사용하였다.
+
+    Target = [1, 2, 3] 이라 가정하자 (필요한 요소 배열)
+    [] 👉 빈 배열에서 시작
+    [1] 👉 Target에서 없는 요소를 찾은뒤 1 삽입
+           이 단계에서 [1, 2] [1, 3] ... 순서대로 호출
+    [1, 2] 👉 2 삽입
+    [1, 2, 3] 👉 3 삽입, k = 1
+    [1, 3]
+    [1, 3, 2] k = 2
+    ...
+
+와 같이 진행되고 length 가 n 과 같아지면 회수를 count 하여 k와 같아지면 종료한다.
+
+자 이제 시간 복잡도를 분석해보자. 모든 n개의 요소마다 recursive 하게 다음 요소를 찾는 함수를 호출하므로
+**O ( N ^ 2)**.
+
+하지만 별다른 solution 이 없을거라 생각해서 제출했지만 결과는 시간 초과 🤯
+
+2. 팩토리얼의 Memoization 패턴 구현
+
+가장 먼저 한번에 k 번째 경우를 구하기 위해 패턴을 찾기 위해 노력했다. 위의 예제로 돌아가보자
+
+    총 경우의 수는 3!
+    arr         k        Order
+    [ 1, X, X ] k = 1 👉 0
+    [ 1, X, X ] k = 2 👉 0
+
+    [ 2, X, X ] k = 3 👉 1
+    [ 2, X, X ] k = 4 👉 1
+
+    [ 3, X, X ] k = 5 👉 2
+    [ 3, X, X ] k = 6 👉 2
+
+    자세히 보면 맨 앞의 숫자는 2번 마다 1씩 올라가는 패턴을 볼 수 있다.
+    여기서 n 자리 수에 들어가는 값을 구하려면
+    order 0, 1, 2 에 따라 [1, 2, 3] 에서 order 번째 작은 수를 뽑아
+    n 자리 수에 매핑 해주면 된다.
+    Order 는 다음과 같은 공식으로 구할 수 있다.
+
+    1. k - 1 값을 (n - 1)! 으로 나눈 몫 (k - 1 은 최초 1회만 해주면 됨).
+    2. 그 다음 k 값은 이때 발생한 나머지
+
+    👉 n 번 반복
+
+위의 접근 방법으로 코드를 구현해보면
+
+```JS
+while ((len = answer.length) < n) {
+    // n - 1 의 팩토리얼 값 계산
+    const divide = factorial(n - len - 1)
+    // 몫과 나머지 계산
+    const [quotient, remainder] = [k / divide, k % divide]
+    // 배열에서 몫 번째 작은 값을 꺼냄
+    const val = arr.splice(quotient, 1)[0];
+    // 솔루션 배열에 삽입
+    answer.push(val);
+    // 다음 k 값은 나머지 값
+    k = remainder;
+}
+```
+
+위와 같이 N! \* n 번의 반복으로 구해낼 수 있는데 이때 factorial 함수는 반복적인 계산을 수행하기 때문에 아래와 같이 `memoization` 패턴으로 구현이 가능하다 (피보나치, 팩토리얼 등에 자주 쓰인다).
+
+```JS
+const cache = {'0': 1}
+    const factorial = num => {
+        let result
+        if (cache[num]) // 캐시에 계산 값이 있을 경우 그대로 리턴
+            result = cache[num]
+        else // 없을 경우 계산하고 캐시에 저장뒤 리턴
+            result = cache[num] = num * factorial(num - 1)
+        return result
+}
+```
+
+위와 같은 패턴으로 시간복잡도를 약 O ( N ) 에 가깝게 줄일 수 있다 ~~개인적인 생각으로 정확히는 모르겠음;;~~.
+
+어쨋든 모든 테스트 케이스 통과 ~.
+
+### 3. 어려웠던 점
+
+패턴을 찾는게 살짝 까다로웠음. 최초에 k 에 1을 빼고 계산 하면 되는데 이걸 알아내는데 꽤 오랜 시간일 걸렸음.
+
+어쨋든 이렇게 **패턴을 찾아내고 알고리즘을 구현하는 능력**이 필요한 듯하다. 여러가지 접근 방법으로 풀이해볼 수 있어서 좋았던 문제.
+
+## 거스름 돈 👉 DP
+
+[문제 링크](https://programmers.co.kr/learn/courses/30/lessons/12907) [나의 풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.%EA%B1%B0%EC%8A%A4%EB%A6%84%EB%8F%88/JeongShin.js)
+
+### 1. 문제정의
+
+n = 특정 금액, money = 동전 조합일 때
+
+n = 5, money = [ 1, 2, 5 ] 라 가정하면, 5 를 만드는 방법의 수는
+
+    5
+    2 2 1
+    2 1 1 1
+    1 1 1 1 1
+    총 : 4가지
+
+가 된다. 이를 구하는게 문제!
+
+### 2. 풀이 & 코이
+
+이 문제는 사실 스스로 풀이하지 못해서 구글링하여 다음 링크의 풀이을 참고하여 풀이하였다. [참고 풀이](https://www.zerocho.com/category/Algorithm/post/5b87ccc1553b47001bb08d2b)
+
+자 그럼 풀이로 들어가보자
+
+n = 10, money = [ 1, 2, 5 ] 라 가정하자
+
+    | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+
+    👉 money : [ 1 ]
+    | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+    1원으로 0 ~ 10 까지 만드는 방법은 1가지 뿐이다.
+
+    👉 money : [ 1 , 2 ]
+    | 1 | 1 | 2 | 2 | 3 | 3 | 4 | 4 | 5 | 5 | 6 |
+    1, 2 원으로 0 ~ 10 원을 만드는 방법. 아직까지 패턴을 찾기 힘들다.
+
+    👉 money : [ 1, 2, 5 ]
+    | 1 | 1 | 2 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 |
+    자, 여기서 8을 만드는 경우의 수를 보자.
+    상식적으로 생각해보면 [ 1 , 2 ] 원에서 5원 동전이 더해졌다.
+    분명 [ 1, 2 ] 로 8을 만드는 경우의 수 ( 5 ) + a 이다.
+    그렇다면 a 는 2라는 소리다.
+    즉, n 원을 만드는 방법은
+    1. k - 1 개의 동전으로 n 을 만드는 경우의 수
+    2. n - x ( 새로 추가된 동전 ) 원 만드는 경우의 수
+    3. n - 2*x 원 만드는 경우의 수
+    ... 이 된다.
+
+코드로 작성해보자.
+
+```JS
+function sol (n, money) {
+    var cache = [1]
+    // 초기화
+    for ( let i = 1 ; i <= n; i++ )
+        cache[ i ] = 0
+
+    for ( let i = 0 ; i < money.length; i ++ ){
+        for ( let j = 1; j <= n; j++ )
+            if (coin [i] <= j)
+                cache [j] += cache [j - coin [i]]
+    }
+}
+```
+
+### 어려웠던 점
+
+이 문제를 풀다가 이 코드를 스스로 생각해내기 전까지 많은 연습이 필요할거 같다는 생각이 들었다.
+
+**dp 에서는 하나의 해가 다른 해의 영향을 미친다는걸 꼭 기억하자. 이 관계식을 찾아내자**
+
+## 저울 👉 Greedy
+
+### 1. 문제정의
+
+다음과 같이 추의 무게들이 주어질 때,
+
+    weight = [ 1, 1, 2, 3, 6, 7, 30 ]
+
+이 무게들로 만들 수 없는 최소 무게를 구하는 문제
+
+### 2. 풀이 & 코드
+
+[문제 링크](https://programmers.co.kr/learn/courses/30/lessons/42886) [나의 풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.%EC%A0%80%EC%9A%B8/JeongShin.js)
+
+가장 먼저 무게를 sorting 한다.
+
+위의 weight 들을 iterate 하면서 각 인덱스별로 만들 수 있는 최대 무게를 구한다.
+이때 현재 고려중인 max 값에 weight [i] 를 더 했을때
+
+    i = 0 [ 1 ]
+    max = 1
+
+    i = 1 [ 1 , 1 ]
+    max = 1 + 1
+
+    i = 2  [ 1, 1, 2 ]
+    max = 2 + 2
+
+    i = 3 [ 1, 1, 2, 3 ]
+    max = 4 + 3
+
+    i = 4 [ 1, 1, 2, 3, 6 ]
+    max = 7 + 6
+
+    i = 5 [ 1, 1, 2, 3, 6, 7 ]
+    max = 13 + 7
+
+    i = 6 [ 1, 1, 2, 3, 6, 7, 30 ]
+    자 여기서 분석해보자. 이전 max 값은 20. 즉 1 ~ 20 의 수를 모두 만들 수 있다.
+    그렇다는 뜻은 이후 weight[ i ] 가 최대 20 까지 모든 수를 커버하여
+    21, 22, 23 ... 40 을 만들 수 있다. 즉 범위가 1 ~ 40으로 늘어난다.
+    하지만 다음 무게가 21 이라면? 👉 만들 수 없다 🙅🏻‍♂️
+
+자 이제 코드로 구현 해보자.
+
+```JS
+function solution(weight) {
+    weight.sort((a, b) => a - b)
+    let answer = 1
+    for (const w of weight) {
+        if (answer >= w)
+            answer+=w
+        else
+            break
+    }
+    return answer
+}
+```
+
+만약 answer 가 현재 고려중인 weight 보다 작아지면 👉 더 이상 만들 수 없다.
+
+### 3. 어려웠던 점
+
+그냥 어려웠다. 풀이가 생각보다 간단해서 당황했던 문제.
+
+이 문제와 바로 위의 문제 거스름 돈 문제와 공통점은 하나의 step 이 다음 step 에 영향을 준다는 점.
+
+상관 관계를 파악하는 연습이 필요할 듯 하다.
+
+이 문제는 내 머리로 도저히 떠오르지가 않는다. 여러번 봐서 익숙해져야지.
+
+꼭 복습해보자
+
+## 멀리뛰기 👉 DP, Fib
+
+[문제 링크](https://programmers.co.kr/learn/courses/30/lessons/12914), [나의 풀이](https://github.com/DKU-STUDY/Algorithm/blob/master/programmers/%EB%82%9C%EC%9D%B4%EB%8F%84%EB%B3%84/level03.%EB%A9%80%EB%A6%AC%EB%9B%B0%EA%B8%B0/JeongShin.js)
+
+### 1. 문제 정의
+
+효진이는 1칸 또는 2칸을 뛸 수 있다. 이때 n 만큼의 거리를 뛰는 모든 경우의 수를 구하는 문제.
+
+    n = 4 라 가정하면
+    | 1 | 1 | 1 | 1 |
+    | 1 | 1 | 2 |
+    | 1 | 2 | 1 |
+    | 2 | 1 | 1 |
+    | 2 | 2 |
+    총 5가지의 방법이 존재한다.
+
+### 2. 풀이 & 코드
+
+이 문제는 피보나치의 수열을 이용하여 해를 구하는 문제.
+
+```JS
+function solution(n) {
+    const result = {'1': 1, '2': 2}
+    for (let i = 3; i <= n; i++) {
+        result[i] = (result[i - 1] + result [i -2])
+    }
+    return result[n]
+}
+```
+
+아주 전형적인 피보나치 수열 문제이다.
+
+### 3. 어려웠던 점
+
+일단 이렇게 모든 경우의 수를 구하는 문제가 주어지면 일단 경우의 수를 몇가지 구해서 패턴을 찾아내자.
+
+요즘 항상 느끼는게 solution을 구할때 일정한 패턴을 찾아내는게 가장 중요한거 같다.
+
+피보나치 수열이라는 이아디어만 얻으면 구현은 아주 쉽다.
+
+## 불량 사용자 👉 DFS, Combination
+
+### 1. 문제정의
+
+다음과 같이 응모자 아이디 (user_id)와 제재 아이디(banned_id) 가 있다.
+
+| User_id |  Banned_id   |
+| :-----: | :----------: |
+|  frodo  |   fr\*d\*    |
+|  crodo  |    \*rodo    |
+| abc123  | \*\*\*\*\*\* |
+| frodoc  | \*\*\*\*\*\* |
+|  fradi  |              |
+
+이때 \* 은 아이디를 가리기 위한 목적으로
+예를들어 fr\*d\* 에는 frodo와 fradi 가 될 수 있습니다.
+
+이때 banned_id 에 해당하는 아이디를 만들 수 있는 경우의 수를 구하는 문제. 단, 중복은 허용되지 않음. 위의 경우에는
+
+    ID fr*d* > *rodo > ****** > ****** 일때
+    1. frodo > crodo > abc123 > frodoc
+    2. fradi > crodo > abc123 > frodoc
+    3. fradi > frodo > abc123 > frodoc 이 될 수 있음.
+    총 3가지 경우의 수를 리턴해야함.
+
+    이때 frodo > crodo > frodoc > abc123 도
+    답이 될 수 있지만 1번과 중복이 발생하므로 고려하지 않음.
+
+### 2. 풀이 & 코드
+
+가장 먼저 각 banned_id 로 부터 가능한 user_id를 구해서 possible_id에 저장해주었다.
+
+```JS
+const regEx = '^' + s.replace(/\*/g, '.') + '$';
+```
+
+위와 같이 \* 에 해당하는 자리에 모든 문자가 가능하도록 바꿔준 뒤 ^, \$를 통하여 정확한 자리수 까지 확인 해준다.
+
+아래와 같이 possible_id 를 구해주었다.
+
+| fr\*d\* | \*rodo | \*\*\*\*\*\* | \*\*\*\*\*\* |
+| :-----: | :----: | :----------: | :----------: |
+|  frodo  | crodo  |    abc123    |    frodoc    |
+|  fradi  | frodo  |    frodoc    |    abc123    |
+
+이제 dfs 알고리즘을 이용해서 각 banned_id 별로 possible_id 를 기반으로 하나씩 매핑해보면
+
+|  fr\*d\*  |  \*rodo   | \*\*\*\*\*\* | \*\*\*\*\*\* |
+| :-------: | :-------: | :----------: | :----------: |
+| **frodo** |   crodo   |  **abc123**  |    frodoc    |
+|   fradi   | ~~frodo~~ |    frodoc    |  ~~abc123~~  |
+
+1열에서 가령 frodo 가 선택되면 2열 에서는 frodo를 제외시켜준다. 3,4열도 마찬가지.
+
+따라서 이때까지 골라온 id를 stack 이라는 배열에 저장해준다고 가정하면 stack 에 없는 요소를 possible_id에서 찾아 배열에 추가해주면 된다.
+
+```JS
+const combination = (stack, idx) => {
+    if (idx === len) {
+        checkPossibleAnswer(stack); // 중복발생 방지
+        return;
+    }
+    possible_id[idx].forEach((str) => {
+        if (!~stack.indexOf(str)) {
+            combination([...stack, str], idx + 1);
+        }
+    })
+}
+```
+
+함수명은 dfs 알고리즘과 유사하지만 목적이 경우의 수를 구하는거기 때문에 combination으로 정해주었다.
+
+변수 idx를 이용하여 몇번째 행을 고려중인지 재귀적으로 전달한다.
+
+이제 여기서 문제가 되는건 idx === len 이 되는 시점, 즉, 모든 아이디가 매핑이 된 시점에 현재 stack 이 중복이 되는가에 대한 검사가 필요하다. 예를들어
+
+    frodo > crodo > abc123 > frodoc
+    frodo > crodo > frodoc > abc123 은 중복된 해답이기 때문에 둘중 하나만 고려해야한다.
+
+따라서 JS Set 을 이용하여 stack을 알파벳 순으로 sort 한 뒤 Set에 add 해주어 해결하였다.
+
+문자열을 sorting 하여 조인하게되면 중복된 경로가 있을 경우 같은 문자열을 반환하고 Set은 중복을 허용하지 않기 때문에 중복을 방지할 수 있다.
+
+### 3. 어려웠던 점
+
+경우의 수 문제에서 크게 Combination과 Permutation 을 알고 차이점을 이해할 필요가 있다.
+
+1. `Combination`
+
+   - 조합을 구한다. 따라서 [1, 2, 3], [1 , 3 , 2] 는 같은 경우가 된다. 즉, **뽑는 순서가 중요 ❌**
+
+2. `Permutation`
+   - 순열을 구한다. 따라서 [1, 2, 3], [1, 3, 2] 는 다른 경우이다. 즉, **뽑는 순서가 중요 ⭕️**
+
+이 문제에선 1번 조합 문제에 해당되고 sorting 을 이용하여 중복을 확인하였지만 soring은 시간복잡도가 n log n 꽤나 무거운 작업 이기 때문에 확실히 좋은 solution은 아니라 생각된다.
+
+조합을 구하는 알고리즘에 대해 다시 공부할 필요가 있음.
