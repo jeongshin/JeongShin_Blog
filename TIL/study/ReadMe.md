@@ -1,160 +1,201 @@
-# WEB Basics
+# 올리브 개발 일지
 
-웹을 공부하며 배운 전반적인 내용을 다룹니다.
+## Custom Event
 
-## MVC Models
+RN 환경에서 개발을 하다가 `Custom Event` 를 발생시켜야 하는 상황이 생겼다. 
 
-#### Model
+인스타그램과 같은 앱에서 하단 탭을 여러번 탭하거나 로고를 누르는 경우 스크롤을 쭉 올려주는 구현을 하고 싶었다. 
 
-- 데이터 관리를 구현 (saving, fetchig ... )
-- 데이터는 메모리, 파일 시스템, DB 등 모든 데이터를 의미함
-- 데이터와 관련된 로직 구현
+### 문제점
 
-#### View
+* 하단 탭 컴포넌트와 리스트 컴포넌트가 완전히 분리된 컴포넌트이기 때문에 소통할 수 있는 구조가 아니였다. 
+* Node Module `events` 를 사용해서 커스텀 이벤트를 발생시켜 구현하고 싶었지만 React Native 환경에서는 기본 모듈이 없다. 
+* 다른 라이브러리 찾아서 쓸까 고민 했지만 그냥 커스텀으로 만들어 보기로 결정했다. 
+* RN 코어 라이브러리를 제외하고는 다른 라이브러리 사용을 최소화하기 위한 노력이다.. ㅎㅎ
 
-- 사용자가 보는 것
-- 로직이 많이 포함되어서는 안됨
+### 해결방안
 
-#### Controller
+일단 기본적인 `addEventListener` 와 클린업을 위한 `removeEventListener` 만 러프하게 작성해보았다. 
 
-- Model과 view 를 연결하여 서로간 communication 을 도움
+```JS
+type Callback = (args?: unknown) => Promise<void> | void;
 
-## Regular Expression
+class EventClass {
+  private static Listeners = new Map<string, Callback>();
 
-#### Regex Basics
+  static addEventListener(name: string, callback: Callback) {
+    const [isNameString, isCallbackFn, isExists] = [
+      typeof name === 'string',
+      typeof callback === 'function',
+      EventClass.Listeners.has(name),
+    ];
 
-문자에서 패턴을 검색할때 쓰인다.
+    if (!isNameString || !isCallbackFn || isExists) return;
 
-`Literal Character` `Meta Character` 로 이루어져 있는데 예제와 함께 하나씩 공부해가며 알아가보자.
+    EventClass.Listeners.set(name, callback);
+  }
 
-Meta Character 는 특정 문자들의 set 대한 상징으로 여러개의 문자를 포함한다.
+  static removeEventListener(name: string) {
+    if (typeof name !== 'string') return;
+    EventClass.Listeners.delete(name);
+  }
 
-1. Single Char
+  static emit(name: string, args?: unknown) {
+    const callback = EventClass.Listeners.get(name);
 
-```
-\d 👉 0 - 9, any digit
+    if (typeof callback === 'function') {
+      callback(args);
+    }
+  }
+}
 
-\w 👉 A - Z, a - z, 0 - 9 any word
-\W 👉 NOT word (\w에 포함 안되는 전부)
-
-\s 👉 white space, 공백, 탭
-\S 👉 NOT white space
-
-. 👉 any character
-
-* 👉 0 or more
-  ex) re.\* 는 re 로 시작하는 모든 문자열이 해당된다.
-```
-
-2. Quntifiers
-
-```
-* 👉 0 or more
-+ 👉 1 or more
-? 👉 0 or 1
-{min, max}
-{n}
-
-예제) \s\w{5}\s : 공백 사이에 오는 5개 문자가 오는 문자열
+export default EventClass;
 ```
 
-3. Alternation
+이제 BottomTabs 에서 같은 탭을 두번 클릭하게 되는 경우 이벤트를 발생 시킨다. 
 
-#### Regex Examples
+```JS
+import { Event } from '@all-live';
 
-1. `-` , `^` 이 두 가지는`[]` 안에서 조금 특별하게 동작한다.
-
-**[-.]** 👉 - 또는 . 을 포함한 문자를 검색한다. (리터럴 '-' 를 검색함)
-
-**[a-z]** 👉 a ~ z 의 알파벳을 검색한다 (범위 검색).
-
-**[0-5]{3}** 👉 0 ~ 5 로 이루어진 3자 문자열을 검색한다.
-
-**[^0-5]{3}** 👉 위에서 구한 범위를 제외한 모든 부분을 구한다.
-
-**[a^bc]** 👉 a, b, c 와 리터럴 ^ 문자를 검색한다.
-
-**\b[A-Z][a-z]\*** 👉 문장의 첫 그 다음이 소문자로 오는 문자 검색. 길이가 \*로 뒤에 더 올 수 있음.
-
-2. `( | )` 로 or 을 검색할 수 있다.
-
-**(net | com)** 👉 net 또는 com 특정 문자열을 검색한다.
-
-이메일은 다음과 같이 검색할 수 있다.
-
-```regex
-\w+@\w+\.(net | com | edu)
+const BottomTabBar: React.FC<BottomTabBarProps> = ({ navigation, state }) => {
+  const onTabPressHandler = useCallback(
+    (currIdx: number, idx: number) => () => {
+      if (currIdx !== idx) {
+        navigation.navigate(state.routes[idx].name);
+        return;
+      }
+      if (currIdx === BOTTOM_TABS.HOME_TAB_SCREEN) {
+        // 두번 연속으로 같은 탭을 탭하는 경우 이벤트 발생
+        Event.emit('scrollFlatListToTop');
+      }
+    },
+    [],
+  );
+  // 생략
 ```
 
-전화번호는 다음과 같은 형식으로 될 수 있다.
+리스트 컴포넌트에선 이벤트 리스너를 등록해준다. 
 
-- (010)2169-2142
-- 010.2169.2142
-- 010-2169-2142
+```JS
+import { Event } from '@all-live';
 
-```regex
-\(? \d{3} [-.)] \d{3} [-.] \d{4}
+const AllTalentList: FC<AllTalentListProps> = memo(({ navigation }) => {
+  const flatListRef = useRef<FlatList>(null);
+
+  const onScrollToTopHandler = useCallback(() => {
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+  }, []);
+
+  useEffect(() => {
+    // 이벤트 리스너 등록
+    Event.addEventListener('scrollFlatListToTop', onScrollToTopHandler);
+    return () => {
+      // 클린업
+      Event.removeEventListener('scrollFlatListToTop');
+    };
+  }, []);
+
+  // 생략
 ```
 
-## CSS BEM
+동작이 잘되는걸 확인하고 나서 타입 적용을 시작했다. 
 
-### Block. Element. Modifier CSS 아키텍쳐
+목표는 아래와 같다. 
 
-CSS 요소들을 다음 세 가지로 구분하여
+1. 이벤트 이름 강제 시
 
-`Block` 👉 독립적인 의미가 있는 컴포넌트
+2. 이벤트 이름에 따라 콜백에 인자가 있는 경우 인자 타입 정의
 
-`Element` 👉 독립적인 의미는 없고 Block 에 포함되는 요소들
+코드가 그렇게 길지 않아서 전체코드를 올리자면
 
-`Modifier` 👉Block 혹은 Element 의 외관을 변화시키는 요소
+```TS
+// 여기 인터페이스를 기반으로 인자 타입을 결정 해준다. 
+interface CustomEvents {
+  // 이벤트 이름: 인자 타입
+  scrollFlatListToTop: undefined;
+}
 
-이름을 정한다.
+type Callback<T> = (args: T | Partial<T>) => Promise<void> | void;
+type EventNames = Extract<keyof CustomEvents, string>;
 
-예를들어 아래와 같은 Card 가 있으면,
+class EventClass {
+  private static Listeners = new Map();
 
-<div class = "card">
-    <div class = "card__img"> </div>
-    <div class = "card__description">
-        <h2>captain teemo 👾</h2>
-        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. </p>
-    </div>
+  static addEventListener<EventName extends keyof CustomEvents = EventNames>(
+    name: EventName,
+    callback: Callback<CustomEvents[EventName]>,
+  ) {
+    const [isNameString, isCallbackFn, isExists] = [
+      typeof name === 'string',
+      typeof callback === 'function',
+      EventClass.Listeners.has(name),
+    ];
+
+    if (!isNameString || !isCallbackFn || isExists) return;
+
+    EventClass.Listeners.set(name, callback);
+  }
+
+  static removeEventListener(name: EventNames) {
+    if (typeof name !== 'string') return false;
+    return EventClass.Listeners.delete(name);
+  }
+
+  static removeAllEventListeners() {
+    EventClass.Listeners.clear();
+  }
+
+  static emit<EventName extends keyof CustomEvents = EventNames>(name: EventName, args?: CustomEvents[EventName]) {
+    const callback = EventClass.Listeners.get(name);
+
+    if (typeof callback === 'function') {
+      callback(args);
+    }
+  }
+}
+
+export default EventClass;
+```
+
+
+와 같이 해주었고 타입 적용이 잘 되고 있는지 확인 해보았다. 
+
+타입이 잘 적용 되는지 테스트 하기 위해 인터페이스를 아래와 같이 변경 
+
+```TS
+interface CustomEvents {
+  scrollFlatListToTop: { myParam: number };
+}
+```
+
+emit 하는 부분
+
+<div class="center">
+  <img src ="./img/type_test1.png">
 </div>
 
-Block 👉 카드 전체 class = "card"
+callback 등록하는 부분
 
-Element 👉 카드 이미지 class = "card\_\_img"
+<div class="center">
+  <img src ="./img/type_test2.png">
+</div>
 
-Element 👉 카드 텍스트 class = "card\_\_description"
+잘된다 ㅎㅎ
 
-Modifier 👉 카드 텍스트 색 변경 class = "card\_\_description card\_\_description--active"
+### 결과
 
-와 같은 형식으로 CSS 요소들의 역할에 따라 이름을 다르게 하여 CSS 클래스의 이름을 보고 어떤 역할인지 예측이 가능하게 한다.
+거의 뇌피셜로 구현해서 이렇게 하는게 맞는지 모르겠는데 기능은 대충 흉내낸거 같다. 
+
+<div class="center">
+  <img src ="./img/custom_events.gif.gif" width="300" height="600">
+</div>
+
 
 <style>
-
-.card {
-    display : grid;
-    grid-template-columns : 100%;
-    grid-template-rows : 210px 210px 80px;
-    grid-template-areas : "image" "text";
-    width: 50%;
-    border-radius : 18px;
-    background: #1b1b1b;
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.9);
-    align-items: center;
-    text-align: center;
-}
-.card__img {
-    grid-area : image;
-    background: url("cardimg.png");
-    width: 100%;
-    height: 100%;
-    border-radius: 18px;
-    background-size: cover;
-}
-.card__description {
-    grid-area : text;
-    margin-top : 15%;
-    padding: 5%;
+.center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
 }
 </style>

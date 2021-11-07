@@ -1,5 +1,3 @@
-const Review2020 = `/daily/2020`;
-const Book = `/book-review`;
 const ALGO = `/algorithms/Problems`;
 const Study = `/TIL/study`;
 
@@ -29,10 +27,4 @@ module.exports = [
       'LeetCode'
     ].map(v => `${ALGO}/${v}`)
   },
-  {
-    title: 'Book-Review',
-    path: '/book-review/',
-    collapsable: true,
-    children: [''].map(v => `${Book}/${v}/`)
-  }
 ];
