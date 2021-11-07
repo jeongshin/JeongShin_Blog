@@ -1,5 +1,5 @@
 const ALGO = `/algorithms/Problems`;
-const Study = `/TIL/study`;
+const ALLIVE = `/Projects/Allive`;
 
 module.exports = [
   {
@@ -8,11 +8,17 @@ module.exports = [
     collapsable: true,
     children: []
   },
+  // {
+  //   title: 'Today I Learned',
+  //   path: '/TIL/',
+  //   collapsable: true,
+  //   children: [''].map(v => `${Study}/${v}`)
+  // },
   {
-    title: 'Today I Learned',
-    path: '/TIL/',
+    title: 'Projects',
+    path: '/Projects/',
     collapsable: true,
-    children: [''].map(v => `${Study}/${v}`)
+    children: [''].map(v => `${ALLIVE}/${v}`)
   },
   {
     title: 'Algorithms',
@@ -26,5 +32,5 @@ module.exports = [
       'Programmers-l4',
       'LeetCode'
     ].map(v => `${ALGO}/${v}`)
-  },
+  }
 ];
